@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>LEVEL UP | Secure Access</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Orbitron:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020207;color:#fff;font-family:'JetBrains Mono',monospace}
+#matrix{position:fixed;inset:0;width:100%;height:100%;opacity:.48}.vignette{position:fixed;inset:0;background:radial-gradient(circle at center,transparent 20%,rgba(0,0,0,.55) 72%,#000 100%);pointer-events:none}
+.scan{position:fixed;inset:0;background:linear-gradient(transparent 49%,rgba(255,0,0,.025) 50%,transparent 51%);background-size:100% 6px;pointer-events:none;mix-blend-mode:screen}
+.wrap{position:relative;z-index:2;min-height:100%;display:grid;place-items:center;padding:22px}.card{width:min(430px,94vw);padding:28px 28px 24px;border:1px solid rgba(255,32,42,.65);border-radius:24px;background:linear-gradient(145deg,rgba(8,8,18,.96),rgba(18,4,10,.91));box-shadow:0 0 0 1px rgba(255,0,0,.08),0 0 34px rgba(255,0,30,.22),inset 0 0 32px rgba(255,0,30,.035);backdrop-filter:blur(12px);animation:cardIn .8s ease both}
+@keyframes cardIn{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:none}}
+.avatar{width:118px;height:118px;margin:0 auto 18px;border-radius:50%;padding:4px;background:linear-gradient(135deg,#ff202a,#7200ff,#ff202a);box-shadow:0 0 28px rgba(255,0,60,.38);animation:pulse 2.8s infinite}.avatar img{width:100%;height:100%;border-radius:50%;display:block;object-fit:cover}
+@keyframes pulse{50%{box-shadow:0 0 40px rgba(255,0,90,.6)}}.brand{text-align:center;font-family:Orbitron,sans-serif;font-weight:800;letter-spacing:5px;font-size:24px;color:#ff3642;text-shadow:0 0 14px rgba(255,0,25,.65)}.sub{text-align:center;color:#9c5960;font-size:10px;letter-spacing:3px;margin-top:8px}.terminal{margin-top:20px;color:#ff303b;font-size:11px;letter-spacing:2px}.prompt{opacity:.8}.input-wrap{margin-top:8px;position:relative}.input{width:100%;height:52px;border:1px solid rgba(255,50,60,.5);border-radius:11px;background:rgba(0,0,0,.38);color:#fff;padding:0 16px;outline:none;font:600 14px 'JetBrains Mono';letter-spacing:2px;transition:.25s}.input:focus{border-color:#ff2936;box-shadow:0 0 0 3px rgba(255,0,30,.1),0 0 20px rgba(255,0,30,.14)}button{width:100%;height:52px;margin-top:14px;border:0;border-radius:11px;background:linear-gradient(90deg,#ff202a,#ff3040);color:#fff;font:800 13px Orbitron,sans-serif;letter-spacing:3px;cursor:pointer;box-shadow:0 0 18px rgba(255,0,30,.25);transition:.2s}button:hover{transform:translateY(-2px);box-shadow:0 0 28px rgba(255,0,30,.45)}button:active{transform:translateY(0)}.status{text-align:center;min-height:18px;margin-top:12px;font-size:10px;color:#8c7275}.status.err{color:#ff4d59}.status.ok{color:#7dffac}.admin{text-align:center;margin-top:18px}.admin a{font-size:10px;color:#744c51;text-decoration:none;letter-spacing:1px}.admin a:hover{color:#ff5360}.foot{text-align:center;margin-top:22px;color:#57383c;font-size:8px;letter-spacing:1.5px}.cursor{display:inline-block;width:7px;height:12px;background:#ff2936;margin-left:4px;animation:blink .8s steps(2) infinite}@keyframes blink{50%{opacity:0}}
+</style></head>
+<body><canvas id="matrix"></canvas><div class="vignette"></div><div class="scan"></div>
+<div class="wrap"><main class="card">
+<div class="avatar"><img src="/assets/level_up_logo.png" alt="LEVEL UP"></div>
+<div class="brand">LEVEL UP</div><div class="sub">SECURE TERMINAL V3.0</div>
+<div class="terminal"><span class="prompt">&gt; ACCESS_REQUEST</span><span class="cursor"></span></div>
+<div class="input-wrap"><input id="code" class="input" type="password" autocomplete="off" placeholder="· ENTER ACCESS CODE ·"></div>
+<button id="login">&gt;_ LOGIN</button><div id="status" class="status"></div>
+
+<div class="foot">⚠ AUTHORIZED USERS ONLY · LEVEL UP SECURE SYSTEMS</div>
+</main></div>
+<script>
+const canvas=document.getElementById('matrix'),ctx=canvas.getContext('2d');let cols,drops,chars='アカサタナハマヤラワ0123456789LEVELUP';
+function resize(){canvas.width=innerWidth;canvas.height=innerHeight;cols=Math.floor(canvas.width/15);drops=Array(cols).fill(1).map(()=>Math.random()*-40)}resize();addEventListener('resize',resize);
+setInterval(()=>{ctx.fillStyle='rgba(0,0,0,.12)';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.font='13px JetBrains Mono,monospace';for(let i=0;i<drops.length;i++){let c=chars[(Math.random()*chars.length)|0];ctx.fillStyle=Math.random()>.88?'#ff3440':'#4b171b';ctx.fillText(c,i*15,drops[i]*15);if(drops[i]*15>canvas.height&&Math.random()>.975)drops[i]=0;drops[i]++}},45);
+async function doLogin(){const code=document.getElementById('code').value.trim(),s=document.getElementById('status');if(!code){s.textContent='ENTER ACCESS CODE';s.className='status err';return} s.textContent='AUTHENTICATING...';s.className='status';try{const r=await fetch('/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({access_code:code})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Access denied');s.textContent='ACCESS GRANTED';s.className='status ok';setTimeout(()=>location.href='/',220)}catch(e){s.textContent='✕ '+e.message;s.className='status err'}}
+document.getElementById('login').onclick=doLogin;document.getElementById('code').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+</script></body></html>
